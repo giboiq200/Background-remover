@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the Image Background Remover</h1>
+        <div class="upload-area" id="upload-area">
+            <p>Drag and Drop your image here or click to select a file.</p>
+            <input type="file" id="file-input" accept="image/*" style="display: none;">
+            <canvas id="image-canvas" style="display: none;"></canvas>
+        </div>
+        <button id="remove-btn" disabled>Remove Background</button>
+        <button id="download-btn" disabled>Download Image</button>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const imageCanvas = document.getElementById('image-canvas');
+        const removeBtn = document.getElementById('remove-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const ctx = imageCanvas.getContext('2d');
+        let uploadedFile = null;
+        let processedImageUrl = null;
+
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.border = '2px dashed #00f';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.border = '2px dashed #ccc';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.border = '2px dashed #ccc';
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                loadImage(file);
+            }
+        });
+
+        
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                loadImage(file);
+            }
+        });
+
+        
+        function loadImage(file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = new Image();
+                img.onload = function () {
+                    imageCanvas.width = img.width;
+                    imageCanvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    imageCanvas.style.display = 'block';
+                    uploadedFile = file;
+                    removeBtn.disabled = false;
+                    downloadBtn.disabled = true;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        
+        removeBtn.addEventListener('click', async () => {
+            if (!uploadedFile) return;
+            removeBtn.disabled = true;
+            removeBtn.textContent = "Removing...";
+            
+            const formData = new FormData();
+            formData.append("file", uploadedFile);
+
+            try {
+                const response = await fetch("http://127.0.0.1:8000/remove-background", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error("Failed to remove background");
+
+                const blob = await response.blob();
+                processedImageUrl = URL.createObjectURL(blob);
+
+                
+                const img = new Image();
+                img.onload = function () {
+                    imageCanvas.width = img.width;
+                    imageCanvas.height = img.height;
+                    ctx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
+                    ctx.drawImage(img, 0, 0);
+                    downloadBtn.disabled = false;
+                    removeBtn.textContent = "Remove Background";
+                    removeBtn.disabled = false;
+                };
+                img.src = processedImageUrl;
+
+            } catch (err) {
+                alert(err.message);
+                removeBtn.textContent = "Remove Background";
+                removeBtn.disabled = false;
+            }
+        });
+
+        
+        downloadBtn.addEventListener('click', () => {
+            if (!processedImageUrl) return;
+            const link = document.createElement('a');
+            link.href = processedImageUrl;
+            link.download = 'image_with_removed_background.png';
+            link.click();
+        });
+    </script>
+</body>
+</html>

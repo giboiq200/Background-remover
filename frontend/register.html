@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="main">
+            <h1>Register</h1>
+            <div class="form">
+                <form id="register-form">
+                    <div class="name">
+                        <input type="text" id="name" required placeholder="Enter your name">
+                    </div>
+                    <div class="email">
+                        <input type="email" id="email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="password">
+                        <input type="password" id="password" placeholder="Enter your password" required>
+                    </div>
+                </form>
+                <div class="link">
+                    <a href="login.html">Already have an account? Log in</a>
+                </div>
+            </div>
+            <button id="submit-btn" disabled>Create an account</button>
+        </div>
+    </div>
+
+    <script>
+        
+        function checkFormValidity() {
+            const name = document.getElementById("name").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            const submitBtn = document.getElementById("submit-btn");
+
+            
+            if (name && email && password) {
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.disabled = true;  
+            }
+        }
+
+        
+        document.getElementById("name").addEventListener("input", checkFormValidity);
+        document.getElementById("email").addEventListener("input", checkFormValidity);
+        document.getElementById("password").addEventListener("input", checkFormValidity);
+
+        
+        document.getElementById("submit-btn").addEventListener("click", async function(e) {
+            e.preventDefault();
+            
+            let name = document.getElementById("name").value;
+            let email = document.getElementById("email").value;
+            let password = document.getElementById("password").value;
+
+            const response = await fetch("http://127.0.0.1:8000/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: name,
+                    email: email,
+                    password: password
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert("User created successfully");
+            } else {
+                alert(data.detail || "Error");
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(107, 87, 61);
+}
+.main{
+    align-items: center;
+    text-align: center;
+    margin-top: 100px;
+    border: 2px solid white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0px 4px 12px 0px cyan;
+}
+.main h1{
+    color: white;
+}
+.form{
+    padding: 20px;
+}
+.name{
+    padding: 5px;
+}
+.email{
+    padding: 5px;
+}
+.password{
+    padding: 5px;
+}
+#submit-btn{
+    cursor: pointer;
+    border-radius: 10px;
+    padding: 8px;
+    background-color: black;
+    color: whitesmoke;
+    border: 2px solid snow;
+    box-shadow: 0px 0px 12px 0px white;
+}
+.link{
+    padding-top: 10px;
+}
+.link a{
+    color: rgb(82, 13, 13);
+}
